@@ -6,7 +6,6 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 	"os"
 	"runtime"
-	"time"
 )
 
 func main() {
@@ -20,6 +19,7 @@ func run() error {
 	var err error
 	var window *sdl.Window
 	var renderer *sdl.Renderer
+	var events chan sdl.Event
 
 	err = sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
@@ -39,14 +39,16 @@ func run() error {
 		return fmt.Errorf("new scene error : %v", err)
 	}
 
-	err = scene.Run(renderer)
-	if err != nil {
-		return fmt.Errorf("scene run error : %v", err)
-	}
+	events = make(chan sdl.Event)
+	errc := scene.Run(renderer, events)
 
 	runtime.LockOSThread()
 
-	time.Sleep(time.Second * 3)
-
-	return nil
+	for {
+		select {
+		case events <- sdl.WaitEvent():
+		case err := <-errc:
+			return err
+		}
+	}
 }
