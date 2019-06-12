@@ -7,8 +7,11 @@ import (
 )
 
 type Breaker struct {
-	texture *sdl.Texture
-	postion int32
+	texture  *sdl.Texture
+	position int32
+
+	width  int32
+	height int32
 }
 
 func NewBreaker(renderer *sdl.Renderer) (*Breaker, error) {
@@ -18,12 +21,12 @@ func NewBreaker(renderer *sdl.Renderer) (*Breaker, error) {
 		return nil, fmt.Errorf("texture load error : %v", err)
 	}
 
-	return &Breaker{texture: texture, postion: 150}, nil
+	return &Breaker{texture: texture, position: 150, width: 100, height: 20}, nil
 }
 
 func (breaker *Breaker) Paint(renderer *sdl.Renderer) error {
 
-	rect := &sdl.Rect{X: breaker.postion, Y: 550, W: 100, H: 20}
+	rect := &sdl.Rect{X: breaker.position, Y: 550, W: breaker.width, H: breaker.height}
 	err := renderer.CopyEx(breaker.texture, nil, rect, 0, nil, sdl.FLIP_NONE)
 
 	if err != nil {
@@ -35,13 +38,19 @@ func (breaker *Breaker) Paint(renderer *sdl.Renderer) error {
 }
 
 func (breaker *Breaker) NewPosition(position int8) {
-	if position == 0 {
-		breaker.postion -= 10
-	} else if position == 1 {
-		breaker.postion += 10
+	if breaker.position > 0 || breaker.position < 400 {
+		if position == 0 {
+			breaker.position -= 10
+		} else if position == 1 {
+			breaker.position += 10
+		}
 	}
 }
 
 func (breaker *Breaker) Destroy() {
 	breaker.texture.Destroy()
+}
+
+func (breaker *Breaker) GetPosition() int32 {
+	return breaker.position
 }

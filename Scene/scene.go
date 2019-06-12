@@ -2,6 +2,7 @@ package Scene
 
 import (
 	"fmt"
+	"github.com/mkilic91/goBreaker/Ball"
 	"github.com/mkilic91/goBreaker/Breaker"
 	"github.com/veandco/go-sdl2/sdl"
 	"time"
@@ -12,6 +13,7 @@ type Scene struct {
 	background *sdl.Texture
 
 	breaker *Breaker.Breaker
+	ball    *Ball.Ball
 }
 
 func NewScene(renderer *sdl.Renderer) (*Scene, error) {
@@ -31,7 +33,12 @@ func NewScene(renderer *sdl.Renderer) (*Scene, error) {
 		return nil, fmt.Errorf("new breaker error : %v", err)
 	}
 
-	return &Scene{frameRate: 60, background: background, breaker: breaker}, nil
+	ball, err := Ball.NewBall(renderer)
+	if err != nil {
+		return nil, fmt.Errorf("new ball error : %v", err)
+	}
+
+	return &Scene{frameRate: 60, background: background, breaker: breaker, ball: ball}, nil
 }
 
 func (scene *Scene) Run(renderer *sdl.Renderer, events <-chan sdl.Event) <-chan error {
@@ -66,11 +73,17 @@ func (scene *Scene) Run(renderer *sdl.Renderer, events <-chan sdl.Event) <-chan 
 }
 
 func (scene *Scene) paint(renderer *sdl.Renderer) error {
+	var err error
 	renderer.Clear()
 
-	err := scene.breaker.Paint(renderer)
+	err = scene.breaker.Paint(renderer)
 	if err != nil {
 		return fmt.Errorf("breaker paint error : %v", err)
+	}
+
+	err = scene.ball.Paint(renderer)
+	if err != nil {
+		return fmt.Errorf("ball paint error : %v", err)
 	}
 
 	renderer.Present()
@@ -99,7 +112,7 @@ func (scene *Scene) handleEvent(event sdl.Event) bool {
 }
 
 func (scene *Scene) update() {
-
+	scene.ball.Update(scene.breaker.GetPosition())
 }
 
 func (scene *Scene) destroy() {
