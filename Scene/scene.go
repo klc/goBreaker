@@ -65,6 +65,11 @@ func (scene *Scene) Run(renderer *sdl.Renderer, events <-chan sdl.Event) <-chan 
 				if err != nil {
 					errc <- err
 				}
+				_, y := scene.ball.GetPosition()
+
+				if y > 600 {
+					scene.restart()
+				}
 			}
 		}
 	}()
@@ -95,18 +100,10 @@ func (scene *Scene) handleEvent(event sdl.Event) bool {
 	switch e := event.(type) {
 	case *sdl.QuitEvent:
 		return true
-	case *sdl.KeyboardEvent:
-		if event.GetType() == sdl.KEYDOWN {
-			switch e.Keysym.Sym {
-			case sdl.K_LEFT:
-				scene.breaker.NewPosition(0)
-				break
-			case sdl.K_RIGHT:
-				scene.breaker.NewPosition(1)
-				break
-			}
-		}
-
+	case *sdl.MouseMotionEvent:
+		scene.breaker.NewPosition(e.X)
+		/*default:
+		fmt.Printf("event %T :", e)*/
 	}
 	return false
 }
@@ -120,5 +117,5 @@ func (scene *Scene) destroy() {
 }
 
 func (scene *Scene) restart() {
-
+	scene.ball.Restart()
 }

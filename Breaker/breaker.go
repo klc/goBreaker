@@ -37,14 +37,8 @@ func (breaker *Breaker) Paint(renderer *sdl.Renderer) error {
 	return nil
 }
 
-func (breaker *Breaker) NewPosition(position int8) {
-	if breaker.position > 0 || breaker.position < 400 {
-		if position == 0 {
-			breaker.position -= 10
-		} else if position == 1 {
-			breaker.position += 10
-		}
-	}
+func (breaker *Breaker) NewPosition(position int32) {
+	breaker.position = position
 }
 
 func (breaker *Breaker) Destroy() {

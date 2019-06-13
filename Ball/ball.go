@@ -24,6 +24,14 @@ type move struct {
 	y int32
 }
 
+func defaultValues() (position, move) {
+
+	position := position{x: 190, y: 540}
+	move := move{x: 0, y: 5}
+
+	return position, move
+}
+
 func NewBall(renderer *sdl.Renderer) (*Ball, error) {
 	texture, err := img.LoadTexture(renderer, "assets/ball.png")
 
@@ -31,8 +39,7 @@ func NewBall(renderer *sdl.Renderer) (*Ball, error) {
 		return nil, fmt.Errorf("texture load error : %v", err)
 	}
 
-	position := position{x: 190, y: 540}
-	move := move{x: 0, y: 5}
+	position, move := defaultValues()
 
 	return &Ball{texture: texture, position: position, move: move, width: 20, height: 20}, nil
 }
@@ -68,14 +75,24 @@ func (ball *Ball) Update(breakerPosition int32) {
 
 	if ball.position.y == 550 {
 		ballPosition := ball.position.x + 10
-		breakerPositionA := breakerPosition - 100
+		breakerPositionA := breakerPosition
 		breakerPositionB := breakerPosition + 100
 
 		if ballPosition > breakerPositionA && ballPosition < breakerPositionB {
+			ball.move.x = ((breakerPositionB - ballPosition) / 10) - 5 + ball.move.x
 			ball.move.y = 5
 		}
 	}
 
 	ball.position.x -= ball.move.x
 	ball.position.y -= ball.move.y
+}
+
+func (ball *Ball) Restart() {
+	ball.position, ball.move = defaultValues()
+}
+
+func (ball *Ball) GetPosition() (int32, int32) {
+
+	return ball.position.x, ball.position.y
 }
