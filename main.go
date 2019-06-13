@@ -51,8 +51,4 @@ func run() error {
 			return err
 		}
 	}
-
-	/*
-		test commit
-	*/
 }
