@@ -3,6 +3,7 @@ package Scene
 import (
 	"fmt"
 	"github.com/mkilic91/goBreaker/Ball"
+	"github.com/mkilic91/goBreaker/Block"
 	"github.com/mkilic91/goBreaker/Breaker"
 	"github.com/veandco/go-sdl2/sdl"
 	"time"
@@ -14,6 +15,7 @@ type Scene struct {
 
 	breaker *Breaker.Breaker
 	ball    *Ball.Ball
+	blocks  *Block.Blocks
 }
 
 func NewScene(renderer *sdl.Renderer) (*Scene, error) {
@@ -38,7 +40,12 @@ func NewScene(renderer *sdl.Renderer) (*Scene, error) {
 		return nil, fmt.Errorf("new ball error : %v", err)
 	}
 
-	return &Scene{frameRate: 60, background: background, breaker: breaker, ball: ball}, nil
+	blocks, err := Block.NewBlocks(renderer)
+	if err != nil {
+		return nil, fmt.Errorf("new blocks error : %v", err)
+	}
+
+	return &Scene{frameRate: 60, background: background, breaker: breaker, ball: ball, blocks: blocks}, nil
 }
 
 func (scene *Scene) Run(renderer *sdl.Renderer, events <-chan sdl.Event) <-chan error {
@@ -91,6 +98,16 @@ func (scene *Scene) paint(renderer *sdl.Renderer) error {
 		return fmt.Errorf("ball paint error : %v", err)
 	}
 
+	err = scene.blocks.Paint(renderer)
+	if err != nil {
+		return fmt.Errorf("blocks paint error : %v", err)
+	}
+
+	/*err = NewPrint(renderer)
+	if err != nil {
+		return fmt.Errorf("print paint error : %v", err)
+	}*/
+
 	renderer.Present()
 
 	return nil
@@ -110,6 +127,7 @@ func (scene *Scene) handleEvent(event sdl.Event) bool {
 
 func (scene *Scene) update() {
 	scene.ball.Update(scene.breaker.GetPosition())
+	scene.blocks.Update(scene.ball)
 }
 
 func (scene *Scene) destroy() {

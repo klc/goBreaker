@@ -96,3 +96,13 @@ func (ball *Ball) GetPosition() (int32, int32) {
 
 	return ball.position.x, ball.position.y
 }
+
+func (ball *Ball) SetMove(x int32, y int32) {
+	if x != 0 {
+		ball.move.x = x
+	}
+
+	if y != 0 {
+		ball.move.y = y
+	}
+}
