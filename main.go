@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mkilic91/goBreaker/Scene"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/veandco/go-sdl2/ttf"
 	"os"
 	"runtime"
 )
@@ -26,6 +27,12 @@ func run() error {
 		return fmt.Errorf("init error : %v", err)
 	}
 	defer sdl.Quit()
+
+	err = ttf.Init()
+	if err != nil {
+		return fmt.Errorf("could not initialize TTF: %v", err)
+	}
+	defer ttf.Quit()
 
 	window, renderer, err = sdl.CreateWindowAndRenderer(400, 600, sdl.WINDOW_SHOWN)
 	if err != nil {

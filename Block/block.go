@@ -3,9 +3,11 @@ package Block
 import (
 	"fmt"
 	"github.com/mkilic91/goBreaker/Ball"
+	"github.com/mkilic91/goBreaker/Print"
 	"github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"
 	"math/rand"
+	"strconv"
 )
 
 const w = 50
@@ -20,6 +22,7 @@ type Blocks struct {
 type Block struct {
 	textureKey int32
 	position   position
+	score      int
 }
 
 type position struct {
@@ -41,9 +44,10 @@ var images = []string{
 }
 
 var ball *Ball.Ball
+var score *Print.Print
 
 //var xPositions = []int32{0, 50, 100, 150, 200, 250, 300, 350}
-var xPositions = []int32{150, 200}
+var xPositions = []int32{0, 50, 100, 150, 200, 250, 300, 350}
 var yPositions = []int32{150, 175, 200, 225}
 
 func NewBlocks(renderer *sdl.Renderer) (*Blocks, error) {
@@ -73,7 +77,7 @@ func NewBlocks(renderer *sdl.Renderer) (*Blocks, error) {
 func newBlock(x int32, y int32) *Block {
 	textureKey := int32(rand.Intn(len(images)))
 
-	return &Block{textureKey: textureKey, position: position{x: x, y: y}}
+	return &Block{textureKey: textureKey, position: position{x: x, y: y}, score: 1}
 }
 
 func (blocks *Blocks) Paint(renderer *sdl.Renderer) error {
@@ -100,8 +104,9 @@ func (block *Block) Paint(renderer *sdl.Renderer, textures []*sdl.Texture, w int
 	return nil
 }
 
-func (blocks *Blocks) Update(b *Ball.Ball) {
+func (blocks *Blocks) Update(b *Ball.Ball, s *Print.Print) {
 	ball = b
+	score = s
 
 	var remainingBlocks []*Block
 
@@ -170,5 +175,19 @@ func (block *Block) Touch() bool {
 
 	ball.SetMove(moveX, moveY)
 
+	if moveX != 0 || moveY != 0 {
+		s, _ := strconv.Atoi(score.GetContent())
+		s += block.score
+		score.Update(strconv.Itoa(s))
+	}
+
 	return touch
+}
+
+func (blocks *Blocks) Restart() {
+	for _, yposition := range yPositions {
+		for _, xposition := range xPositions {
+			blocks.blocks = append(blocks.blocks, newBlock(xposition, yposition))
+		}
+	}
 }
