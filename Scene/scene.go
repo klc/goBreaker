@@ -65,7 +65,8 @@ func (scene *Scene) Run(renderer *sdl.Renderer, events <-chan sdl.Event) <-chan 
 
 	go func() {
 		defer close(errc)
-		tick := time.Tick(10 * time.Millisecond)
+		frameRate := time.Tick(17 * time.Millisecond)
+		updateRate := time.Tick(10 * time.Millisecond)
 
 		for {
 			select {
@@ -73,12 +74,14 @@ func (scene *Scene) Run(renderer *sdl.Renderer, events <-chan sdl.Event) <-chan 
 				if done := scene.handleEvent(e); done {
 					return
 				}
-			case <-tick:
-				scene.update()
+			case <-frameRate:
 				err := scene.paint(renderer)
 				if err != nil {
 					errc <- err
 				}
+
+			case <-updateRate:
+				scene.update()
 				_, y := scene.ball.GetPosition()
 
 				if y > 600 {
